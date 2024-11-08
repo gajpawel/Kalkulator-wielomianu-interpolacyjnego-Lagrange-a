@@ -1,0 +1,60 @@
+﻿<Window x:Class="Lagrange.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Lagrange"
+        mc:Ignorable="d"
+        Title="Interpolacja Lagrange'a" Height="375" Width="800" ResizeMode="CanMinimize" Background="#FFF4F4F4">
+    <Grid Margin="10,10,0,0" Height="324" VerticalAlignment="Top">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button Content="Oblicz" Grid.Row="3" Grid.Column="1" Click="Button_Click" Margin="130,6,130,6"/>
+        <TextBlock Name="thr" Grid.Row="1" Grid.Column="1" Text="Liczba wątków: " FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,10,0,0"/>
+        <Slider Name="suwakWatki" Grid.Row="1" Grid.Column="1" Minimum="1" Maximum="64" TickFrequency="1" IsSnapToTickEnabled="True"  Value="32" Margin="171,0,10,0" ValueChanged="Slider_ValueChanged" VerticalAlignment="Center"/>
+        <TextBox Name="result" Grid.Row="5" Grid.RowSpan="2" Grid.ColumnSpan="2" FontSize="36" VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FFB7ABAB" Margin="73,19,0,0" Width="644" BorderBrush="#FF050505"/>
+        <TextBlock Name="zmienne" Text="Liczba zmiennych: " Grid.Column="1" FontSize="18" VerticalAlignment="Top" Margin="20,10,18,0"/>
+        <TextBlock Name="Lx1" Text="x1" FontSize="18" Visibility="Visible" VerticalAlignment="Center" Margin="0,0,358,0"/>
+        <TextBlock Name="Lx2" Text="x2" FontSize="18" Grid.Row="1" Visibility="Visible" VerticalAlignment="Center"/>
+        <TextBlock Name="Lx3" Text="x3" FontSize="18" Grid.Row="2" Visibility="Hidden"  VerticalAlignment="Center"/>
+        <TextBlock Name="Lx4" Text="x4" FontSize="18" Grid.Row="3" Visibility="Hidden" VerticalAlignment="Center"/>
+        <TextBlock Name="Lx5" Text="x5" FontSize="18" Grid.Row="4" Visibility="Hidden" VerticalAlignment="Center"/>
+        <TextBox Name="x1" Text="" Margin="37,13,208,9"/>
+        <TextBlock Name="implementacja" Text="Implementacja: " Grid.Row="2" Grid.Column="1" Margin="20,0,0,0" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="181"/>
+        <ComboBox Name="variables" Grid.Column="1" Margin="211,10,50,9" SelectionChanged="ComboBox_SelectionChanged">
+            <ComboBoxItem IsSelected="True">2</ComboBoxItem>
+            <ComboBoxItem>3</ComboBoxItem>
+            <ComboBoxItem>4</ComboBoxItem>
+            <ComboBoxItem>5</ComboBoxItem>
+        </ComboBox>
+        <RadioButton Content="Asembler" IsChecked="True" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" Checked="RadioButton_Checked_Asm" Margin="200,0,0,0"/>
+        <RadioButton Content="C#" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Checked="RadioButton_Checked_Cs" Margin="320,0,0,0"/>
+        <TextBlock x:Name="czas" Text="Czas wykonania: " Grid.Row="4" Grid.Column="1" Margin="20,10,0,0" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="181"/>
+        <TextBlock Name="Ly1" Text="y1" FontSize="18" VerticalAlignment="Top" Margin="198,10,161,0"/>
+        <TextBlock Name="Ly2" Text="y2" FontSize="18" VerticalAlignment="Center" Margin="198,8,160,0" Grid.Row="1"/>
+        <TextBlock Name="Ly3" Text="y3" FontSize="18" Visibility="Hidden" VerticalAlignment="Center" Margin="198,12,160,0" Grid.Row="2"/>
+        <TextBlock Name="Ly5" Text="y5" FontSize="18" Visibility="Hidden"  VerticalAlignment="Center" Margin="198,0,160,0" Grid.Row="4"/>
+        <TextBlock Name="Ly4" Text="y4" FontSize="18" Visibility="Hidden"  VerticalAlignment="Center" Margin="198,0,160,0" Grid.Row="3"/>
+        <TextBox x:Name="x2" Text="" Margin="37,10,208,13" Grid.Row="1"/>
+        <TextBox x:Name="x3" Text="" Visibility="Hidden" Margin="37,10,208,12" Grid.Row="2"/>
+        <TextBox x:Name="x4" Text="" Visibility="Hidden" Margin="37,12,208,10" Grid.Row="3"/>
+        <TextBox x:Name="x5" Text="" Visibility="Hidden" Margin="37,12,208,10" Grid.Row="4"/>
+        <TextBox x:Name="y1" Text="" Margin="234,10,11,12"/>
+        <TextBox x:Name="y2" Text="" Margin="234,11,11,12" Grid.Row="1"/>
+        <TextBox x:Name="y3" Visibility="Hidden" Text="" Margin="234,10,11,11" Grid.Row="2"/>
+        <TextBox x:Name="y4" Visibility="Hidden" Text="" Margin="234,12,11,10" Grid.Row="3"/>
+        <TextBox x:Name="y5" Visibility="Hidden"  Text="" Margin="234,12,11,10" Grid.Row="4"/>
+    </Grid>
+    
+</Window>
