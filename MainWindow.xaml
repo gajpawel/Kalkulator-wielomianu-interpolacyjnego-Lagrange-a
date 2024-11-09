@@ -31,6 +31,16 @@
         <TextBlock Name="Lx4" Text="x4" FontSize="18" Grid.Row="3" Visibility="Hidden" VerticalAlignment="Center"/>
         <TextBlock Name="Lx5" Text="x5" FontSize="18" Grid.Row="4" Visibility="Hidden" VerticalAlignment="Center"/>
         <TextBox Name="x1" Text="" Margin="37,13,208,9"/>
+        <TextBox x:Name="y1" Text="" Margin="234,10,11,12"/>
+        <TextBox x:Name="x2" Text="" Margin="37,10,208,13" Grid.Row="1"/>
+        <TextBox x:Name="y2" Text="" Margin="234,11,11,12" Grid.Row="1"/>
+
+        <TextBox x:Name="x3" Text="" Visibility="Hidden" Margin="37,10,208,12" Grid.Row="2"/>
+        <TextBox x:Name="y3" Visibility="Hidden" Text="" Margin="234,10,11,11" Grid.Row="2"/>
+        <TextBox x:Name="x4" Text="" Visibility="Hidden" Margin="37,12,208,10" Grid.Row="3"/>
+        <TextBox x:Name="y4" Visibility="Hidden" Text="" Margin="234,12,11,10" Grid.Row="3"/>
+        <TextBox x:Name="x5" Text="" Visibility="Hidden" Margin="37,12,208,10" Grid.Row="4"/>
+        <TextBox x:Name="y5" Visibility="Hidden"  Text="" Margin="234,12,11,10" Grid.Row="4"/>
         <TextBlock Name="implementacja" Text="Implementacja: " Grid.Row="2" Grid.Column="1" Margin="20,0,0,0" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="181"/>
         <ComboBox Name="variables" Grid.Column="1" Margin="211,10,50,9" SelectionChanged="ComboBox_SelectionChanged">
             <ComboBoxItem IsSelected="True">2</ComboBoxItem>
@@ -46,15 +56,6 @@
         <TextBlock Name="Ly3" Text="y3" FontSize="18" Visibility="Hidden" VerticalAlignment="Center" Margin="198,12,160,0" Grid.Row="2"/>
         <TextBlock Name="Ly5" Text="y5" FontSize="18" Visibility="Hidden"  VerticalAlignment="Center" Margin="198,0,160,0" Grid.Row="4"/>
         <TextBlock Name="Ly4" Text="y4" FontSize="18" Visibility="Hidden"  VerticalAlignment="Center" Margin="198,0,160,0" Grid.Row="3"/>
-        <TextBox x:Name="x2" Text="" Margin="37,10,208,13" Grid.Row="1"/>
-        <TextBox x:Name="x3" Text="" Visibility="Hidden" Margin="37,10,208,12" Grid.Row="2"/>
-        <TextBox x:Name="x4" Text="" Visibility="Hidden" Margin="37,12,208,10" Grid.Row="3"/>
-        <TextBox x:Name="x5" Text="" Visibility="Hidden" Margin="37,12,208,10" Grid.Row="4"/>
-        <TextBox x:Name="y1" Text="" Margin="234,10,11,12"/>
-        <TextBox x:Name="y2" Text="" Margin="234,11,11,12" Grid.Row="1"/>
-        <TextBox x:Name="y3" Visibility="Hidden" Text="" Margin="234,10,11,11" Grid.Row="2"/>
-        <TextBox x:Name="y4" Visibility="Hidden" Text="" Margin="234,12,11,10" Grid.Row="3"/>
-        <TextBox x:Name="y5" Visibility="Hidden"  Text="" Margin="234,12,11,10" Grid.Row="4"/>
     </Grid>
     
 </Window>
