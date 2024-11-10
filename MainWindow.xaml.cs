@@ -20,7 +20,7 @@ namespace Lagrange
         int parameters = 2;
         List<double> x = new List<double>();
         List<double> y = new List<double>();
-        int threads;
+        int threads = Environment.ProcessorCount;
         bool asm = true;
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
@@ -28,10 +28,12 @@ namespace Lagrange
         public MainWindow()
         {
             this.InitializeComponent();
+            suwakWatki.Value = Environment.ProcessorCount;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            DateTime startTime = DateTime.Now;
             List<System.Windows.Controls.TextBox> tx = new List<System.Windows.Controls.TextBox> {x1, x2, x3, x4, x5 };
             List<System.Windows.Controls.TextBox> ty = new List<System.Windows.Controls.TextBox> { y1, y2, y3, y4, y5 };
             
@@ -52,6 +54,9 @@ namespace Lagrange
             if(this.asm)
                 c = LagrangeAsm(a, b);
             result.Text = c.ToString();
+            DateTime stopTime = DateTime.Now;
+            TimeSpan roznica = stopTime - startTime;
+            czas.Text="Czas wykonania: " + roznica.TotalMilliseconds + " ms";
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
