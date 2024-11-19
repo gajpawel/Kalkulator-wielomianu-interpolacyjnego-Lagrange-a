@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagrange", "Lagrange.csproj", "{8D61A5C7-8CCB-451A-A6AB-2ABF11C13CF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lagrange", "Lagrange.csproj", "{8D61A5C7-8CCB-451A-A6AB-2ABF11C13CF5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DDAC1A64-E4EE-48C2-ABD4-9C0EFE9EBC20} = {DDAC1A64-E4EE-48C2-ABD4-9C0EFE9EBC20}
 	EndProjectSection

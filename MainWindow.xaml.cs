@@ -9,6 +9,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Threading;
+using Lagrange;
 
 namespace Lagrange
 {
@@ -20,15 +22,17 @@ namespace Lagrange
         int parameters = 2;
         List<double> x = new List<double>();
         List<double> y = new List<double>();
+        List<double> r = new List<double>();
         int threads = Environment.ProcessorCount;
         bool asm = true;
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
         static extern int LagrangeAsm(int a, int b);
+
         public MainWindow()
         {
             this.InitializeComponent();
-            suwakWatki.Value = Environment.ProcessorCount;
+            sliderThreads.Value = Environment.ProcessorCount;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -53,16 +57,26 @@ namespace Lagrange
             int c = 0;
             if(this.asm)
                 c = LagrangeAsm(a, b);
+            else
+                for(int i = 0; i<this.threads; ++i)
+                {
+                    ThreadStart ts = new ThreadStart(CalculateCs);
+                }
             result.Text = c.ToString();
             DateTime stopTime = DateTime.Now;
-            TimeSpan roznica = stopTime - startTime;
-            czas.Text="Czas wykonania: " + roznica.TotalMilliseconds + " ms";
+            TimeSpan timeSpan = stopTime - startTime;
+            time.Text="Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
+        }
+
+        public static void CalculateCs()
+        {
+            
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            thr.Text = "Liczba wątków: " + suwakWatki.Value.ToString();
-            this.threads = int.Parse(suwakWatki.Value.ToString());
+            thr.Text = "Liczba wątków: " + sliderThreads.Value.ToString();
+            this.threads = int.Parse(sliderThreads.Value.ToString());
         }
 
         private void RadioButton_Checked_Asm(object sender, RoutedEventArgs e)
