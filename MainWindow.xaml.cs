@@ -11,6 +11,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Threading;
 using Lagrange;
+using System.Runtime.CompilerServices;
 
 namespace Lagrange
 {
@@ -37,40 +38,48 @@ namespace Lagrange
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            this.x.Clear();
+            this.y.Clear();
             DateTime startTime = DateTime.Now;
             List<System.Windows.Controls.TextBox> tx = new List<System.Windows.Controls.TextBox> {x1, x2, x3, x4, x5 };
             List<System.Windows.Controls.TextBox> ty = new List<System.Windows.Controls.TextBox> { y1, y2, y3, y4, y5 };
-            
+
             for (int i = 0; i<this.parameters; ++i)
             {
                 if (tx[i].Text.Length == 0 || ty[i].Text.Length == 0)
-                { 
-                    this.x.Clear();
-                    this.y.Clear();
-                    return; 
-                }
+                    return;            
                 this.x.Add(double.Parse(tx[i].Text));
                 this.y.Add(double.Parse(ty[i].Text));
             }
             int a = 2;
             int b = 3;
             int c = 0;
-            if(this.asm)
+            if (this.asm)
                 c = LagrangeAsm(a, b);
             else
-                for(int i = 0; i<this.threads; ++i)
-                {
-                    ThreadStart ts = new ThreadStart(CalculateCs);
-                }
-            result.Text = c.ToString();
+                CalculateCs();
+            //result.Text = c.ToString();
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
             time.Text="Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
         }
 
-        public static void CalculateCs()
+        public void CalculateCs()
         {
-            
+            double lokX = y[0] / (x[0] - x[1])+y[1]/(x[1]-x[0]);
+            lokX = Math.Round(lokX, 3);
+            double w = (y[0] / (x[0] - x[1]))*(-x[1])+(y[1]/ (x[1] - x[0]))*(-x[0]);
+            w = Math.Round(w, 3);
+            string op = "x";
+            if (w >= 0)
+                op += " + ";
+            else
+                op += "";
+            if (lokX !=1)
+                result.Text = lokX.ToString();
+            else
+                result.Text = "";
+            result.Text+=op+w.ToString();
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
