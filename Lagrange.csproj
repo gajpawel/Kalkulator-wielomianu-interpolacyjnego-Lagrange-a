@@ -9,4 +9,8 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MathNet.Symbolics" Version="0.25.0" />
+  </ItemGroup>
+
 </Project>

@@ -12,6 +12,9 @@ using System.Windows.Shapes;
 using System.Threading;
 using Lagrange;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using MathNet.Symbolics;
+using Expr = MathNet.Symbolics.SymbolicExpression;
 
 namespace Lagrange
 {
@@ -66,20 +69,18 @@ namespace Lagrange
 
         public void CalculateCs()
         {
-            double lokX = y[0] / (x[0] - x[1])+y[1]/(x[1]-x[0]);
-            lokX = Math.Round(lokX, 3);
-            double w = (y[0] / (x[0] - x[1]))*(-x[1])+(y[1]/ (x[1] - x[0]))*(-x[0]);
-            w = Math.Round(w, 3);
-            string op = "x";
-            if (w >= 0)
-                op += " + ";
-            else
-                op += "";
-            if (lokX !=1)
-                result.Text = lokX.ToString();
-            else
-                result.Text = "";
-            result.Text+=op+w.ToString();
+            var xx = Expr.Variable("x");
+            var addexp = 0*xx;
+            for (int i = 0; i < y.Count; ++i)
+            {
+                var mulexp = xx/xx;
+                for (int j = 0; j < x.Count; ++j)
+                    if (i != j)
+                        mulexp *= ((xx-x[j])/(x[i]-x[j]));
+                addexp += (y[i]*mulexp);
+            }
+            //var simplified = MathNet.Symbolics.Simplification.Trivial(addexp);
+            result.Text= addexp.ToString();
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
