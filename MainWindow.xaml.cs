@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MathNet.Symbolics;
 using Expr = MathNet.Symbolics.SymbolicExpression;
+using System.Linq.Expressions;
 
 namespace Lagrange
 {
@@ -43,25 +44,28 @@ namespace Lagrange
         {
             this.x.Clear();
             this.y.Clear();
-            DateTime startTime = DateTime.Now;
             List<System.Windows.Controls.TextBox> tx = new List<System.Windows.Controls.TextBox> {x1, x2, x3, x4, x5 };
             List<System.Windows.Controls.TextBox> ty = new List<System.Windows.Controls.TextBox> { y1, y2, y3, y4, y5 };
-
-            for (int i = 0; i<this.parameters; ++i)
+            try
             {
-                if (tx[i].Text.Length == 0 || ty[i].Text.Length == 0)
-                    return;            
-                this.x.Add(double.Parse(tx[i].Text));
-                this.y.Add(double.Parse(ty[i].Text));
+                for (int i = 0; i < this.parameters; ++i)
+                {
+                    if (tx[i].Text.Length == 0 || ty[i].Text.Length == 0)
+                        return;
+                    this.x.Add(double.Parse(tx[i].Text));
+                    this.y.Add(double.Parse(ty[i].Text));
+                }
             }
-            int a = 2;
-            int b = 3;
-            int c = 0;
+            catch (System.FormatException)
+            {
+                result.Text = "Nieprawidłowe argumenty.";
+                return;
+            }
+            DateTime startTime = DateTime.Now;
             if (this.asm)
-                c = LagrangeAsm(a, b);
+                CalculateAsm();
             else
                 CalculateCs();
-            //result.Text = c.ToString();
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
             time.Text="Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
@@ -70,18 +74,42 @@ namespace Lagrange
         public void CalculateCs()
         {
             var xx = Expr.Variable("x");
-            var addexp = 0*xx;
+            var addexp = 0 * xx;
+
             for (int i = 0; i < y.Count; ++i)
             {
                 var mulexp = xx/xx;
-                for (int j = 0; j < x.Count; ++j)
+                Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = this.threads }, j =>
+                {
                     if (i != j)
-                        mulexp *= ((xx-x[j])/(x[i]-x[j]));
-                addexp += (y[i]*mulexp);
+                        mulexp *= (xx - x[j]) / (x[i] - x[j]);
+                });
+                var partialResult = y[i] * mulexp;
+                addexp += partialResult;
             }
-            //var simplified = MathNet.Symbolics.Simplification.Trivial(addexp);
-            result.Text= addexp.ToString();
+            //var simplified = MathNet.Symbolics.Simplification.Full(addexp);
+            result.Text = addexp.ToString();
         }
+
+        public void CalculateAsm()
+        {
+            var xx = Expr.Variable("x");
+            var addexp = 0 * xx;
+
+            for (int i = 0; i < y.Count; ++i)
+            {
+                var mulexp = xx / xx;
+                Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = this.threads }, j =>
+                {
+                    if (i != j)
+                        LagrangeAsm(1, 2);
+                });
+                var partialResult = y[i] * mulexp;
+                addexp += partialResult;
+            }
+            result.Text = addexp.ToString();
+        }
+
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
