@@ -16,6 +16,8 @@ using System.Threading.Tasks;
 using MathNet.Symbolics;
 using Expr = MathNet.Symbolics.SymbolicExpression;
 using System.Linq.Expressions;
+using CSInterpolation;
+using System.Reflection;
 
 namespace Lagrange
 {
@@ -34,10 +36,17 @@ namespace Lagrange
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
         static extern int LagrangeAsm(int a, int b);
 
+        string libraryPath = @"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\CSInterpolation\bin\Debug\CSInterpolation.dll";
+
         public MainWindow()
         {
             this.InitializeComponent();
             sliderThreads.Value = Environment.ProcessorCount;
+        }
+
+        private void ButtonTime_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -55,8 +64,7 @@ namespace Lagrange
                     this.x.Add(double.Parse(tx[i].Text));
                     this.y.Add(double.Parse(ty[i].Text));
                 }
-            }
-            catch (System.FormatException)
+            }catch (System.FormatException)
             {
                 result.Text = "Nieprawidłowe argumenty.";
                 return;
@@ -73,6 +81,12 @@ namespace Lagrange
 
         public void CalculateCs()
         {
+            Assembly assembly = Assembly.LoadFrom(libraryPath);
+            Type mathOperationsType = assembly.GetType("CSInterpolation.CSLagrange");
+            object mathOperationsInstance = Activator.CreateInstance(mathOperationsType);
+            MethodInfo addMethod = mathOperationsType.GetMethod("licz");
+            //int res = (int)addMethod.Invoke(mathOperationsInstance, new object[] { 5, 7 });
+
             var xx = Expr.Variable("x");
             var addexp = 0 * xx;
 
@@ -131,10 +145,10 @@ namespace Lagrange
         {
             if (variables.SelectedItem is ComboBoxItem selectedItem && selectedItem.Content != null)
             {
-                if (selectedItem.Content.ToString()=="3")
+                if (selectedItem.Content.ToString() == "3")
                 {
                     x3.Visibility = Visibility.Visible;
-                    y3.Visibility=Visibility.Visible;
+                    y3.Visibility = Visibility.Visible;
                     x4.Visibility = Visibility.Hidden;
                     y4.Visibility = Visibility.Hidden;
                     x5.Visibility = Visibility.Hidden;
@@ -149,7 +163,7 @@ namespace Lagrange
 
                     this.parameters = 3;
                 }
-                else if(selectedItem.Content.ToString() == "4")
+                else if (selectedItem.Content.ToString() == "4")
                 {
                     x3.Visibility = Visibility.Visible;
                     y3.Visibility = Visibility.Visible;

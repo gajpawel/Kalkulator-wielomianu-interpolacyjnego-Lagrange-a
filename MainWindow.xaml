@@ -20,11 +20,12 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Content="Oblicz" Grid.Row="3" Grid.Column="1" Click="Button_Click" Margin="130,6,130,6"/>
+        <Button Content="Oblicz" Grid.Row="3" Grid.Column="1" Click="Button_Click" Margin="43,6,217,6"/>
+        <Button Content="Czasy wykonania" Grid.Row="3" Grid.Column="1" Click="ButtonTime_Click" Margin="211,6,49,6"/>
         <TextBlock Name="thr" Grid.Row="1" Grid.Column="1" Text="Liczba wątków: " FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,10,0,0"/>
         <Slider Name="sliderThreads" Grid.Row="1" Grid.Column="1" Minimum="1" Maximum="64" TickFrequency="1" IsSnapToTickEnabled="True" Margin="171,0,10,0" ValueChanged="Slider_ValueChanged" VerticalAlignment="Center"/>
         <TextBox Name="result" Grid.Row="5" Grid.RowSpan="2" Grid.ColumnSpan="2" FontSize="36" VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FFB7ABAB" Margin="73,19,0,0" Width="644" BorderBrush="#FF050505"/>
-        <TextBlock Name="zmienne" Text="Liczba zmiennych: " Grid.Column="1" FontSize="18" VerticalAlignment="Top" Margin="20,10,18,0"/>
+        <TextBlock Text="Liczba zmiennych: " Grid.Column="1" FontSize="18" VerticalAlignment="Top" Margin="20,10,18,0"/>
         <TextBlock Name="Lx1" Text="x1" FontSize="18" Visibility="Visible" VerticalAlignment="Center" Margin="0,0,358,0"/>
         <TextBlock Name="Lx2" Text="x2" FontSize="18" Grid.Row="1" Visibility="Visible" VerticalAlignment="Center"/>
         <TextBlock Name="Lx3" Text="x3" FontSize="18" Grid.Row="2" Visibility="Hidden"  VerticalAlignment="Center"/>
@@ -41,7 +42,7 @@
         <TextBox x:Name="y4" Visibility="Hidden" Text="" Margin="234,12,11,10" Grid.Row="3"/>
         <TextBox x:Name="x5" Text="" Visibility="Hidden" Margin="37,12,208,10" Grid.Row="4"/>
         <TextBox x:Name="y5" Visibility="Hidden"  Text="" Margin="234,12,11,10" Grid.Row="4"/>
-        <TextBlock Name="implementacja" Text="Implementacja: " Grid.Row="2" Grid.Column="1" Margin="20,0,0,0" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="181"/>
+        <TextBlock Text="Implementacja: " Grid.Row="2" Grid.Column="1" Margin="20,0,0,0" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="181"/>
         <ComboBox Name="variables" Grid.Column="1" Margin="211,10,50,9" SelectionChanged="ComboBox_SelectionChanged">
             <ComboBoxItem IsSelected="True">2</ComboBoxItem>
             <ComboBoxItem>3</ComboBoxItem>
