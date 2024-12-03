@@ -13,11 +13,10 @@ using System.Threading;
 using Lagrange;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using MathNet.Symbolics;
-using Expr = MathNet.Symbolics.SymbolicExpression;
-using System.Linq.Expressions;
+using AngouriMath;
 using CSInterpolation;
 using System.Reflection;
+using System.Runtime.Serialization.Json;
 
 namespace Lagrange
 {
@@ -35,8 +34,6 @@ namespace Lagrange
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
         static extern int LagrangeAsm(int a, int b);
-
-        string libraryPath = @"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\CSInterpolation\bin\Debug\CSInterpolation.dll";
 
         public MainWindow()
         {
@@ -81,13 +78,9 @@ namespace Lagrange
 
         public void CalculateCs()
         {
-            Assembly assembly = Assembly.LoadFrom(libraryPath);
-            Type mathOperationsType = assembly.GetType("CSInterpolation.CSLagrange");
-            object mathOperationsInstance = Activator.CreateInstance(mathOperationsType);
-            MethodInfo addMethod = mathOperationsType.GetMethod("licz");
-            //int res = (int)addMethod.Invoke(mathOperationsInstance, new object[] { 5, 7 });
+            CSLagrange r = new CSLagrange();
 
-            var xx = Expr.Variable("x");
+            var xx = MathS.Var("x");
             var addexp = 0 * xx;
 
             for (int i = 0; i < y.Count; ++i)
@@ -96,18 +89,24 @@ namespace Lagrange
                 Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = this.threads }, j =>
                 {
                     if (i != j)
-                        mulexp *= (xx - x[j]) / (x[i] - x[j]);
+                    { 
+                        var res = r.Caclulate(xx, x[i], x[j]);
+                        mulexp *= res;
+                    }
                 });
                 var partialResult = y[i] * mulexp;
                 addexp += partialResult;
             }
-            //var simplified = MathNet.Symbolics.Simplification.Full(addexp);
-            result.Text = addexp.ToString();
+            addexp = addexp.Simplify();
+            if (addexp.ToString() == "NaN")
+                result.Text = "Brak wielomianu interpolacyjnego";
+            else
+                result.Text = addexp.ToString();
         }
 
         public void CalculateAsm()
         {
-            var xx = Expr.Variable("x");
+            var xx = MathS.Var("x");
             var addexp = 0 * xx;
 
             for (int i = 0; i < y.Count; ++i)
@@ -121,7 +120,11 @@ namespace Lagrange
                 var partialResult = y[i] * mulexp;
                 addexp += partialResult;
             }
-            result.Text = addexp.ToString();
+            addexp = addexp.Simplify();
+            if (addexp.ToString() == "NaN")
+                result.Text = "Brak wielomianu interpolacyjnego";
+            else
+                result.Text = addexp.ToString();
         }
 
 

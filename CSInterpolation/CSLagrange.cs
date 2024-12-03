@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using AngouriMath;
 
 namespace CSInterpolation
 {
     public class CSLagrange
     {
-        public int licz(int a, int b)
+        public Entity Caclulate(Entity.Variable xx, double xi, double xj)
         {
-            return a + b;
+            return (xx - xj) / (xi - xj);
         }
     }
 }
