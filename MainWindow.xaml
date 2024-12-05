@@ -20,7 +20,7 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Content="Oblicz" Grid.Row="3" Grid.Column="1" Click="Button_Click" Margin="43,6,217,6"/>
+        <Button Content="Oblicz" Grid.Row="3" Grid.Column="1" Click="ButtonCalculate_Click" Margin="43,6,217,6"/>
         <Button Content="Czasy wykonania" Grid.Row="3" Grid.Column="1" Click="ButtonTime_Click" Margin="211,6,49,6"/>
         <TextBlock Name="thr" Grid.Row="1" Grid.Column="1" Text="Liczba wątków: " FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,10,0,0"/>
         <Slider Name="sliderThreads" Grid.Row="1" Grid.Column="1" Minimum="1" Maximum="64" TickFrequency="1" IsSnapToTickEnabled="True" Margin="171,0,10,0" ValueChanged="Slider_ValueChanged" VerticalAlignment="Center"/>

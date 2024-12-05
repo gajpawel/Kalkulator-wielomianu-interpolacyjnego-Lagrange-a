@@ -43,10 +43,12 @@ namespace Lagrange
 
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
         {
-
+            Stats s = new Stats();
+            s.Activate();
+            s.Show();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ButtonCalculate_Click(object sender, RoutedEventArgs e)
         {
             this.x.Clear();
             this.y.Clear();
@@ -61,7 +63,7 @@ namespace Lagrange
                     this.x.Add(double.Parse(tx[i].Text));
                     this.y.Add(double.Parse(ty[i].Text));
                 }
-            }catch (System.FormatException)
+            }catch (FormatException)
             {
                 result.Text = "Nieprawidłowe argumenty.";
                 return;
@@ -70,38 +72,13 @@ namespace Lagrange
             if (this.asm)
                 CalculateAsm();
             else
-                CalculateCs();
+            { 
+                CSLagrange r = new CSLagrange(x, y, threads);
+                result.Text = r.getResult();
+            }
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
             time.Text="Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
-        }
-
-        public void CalculateCs()
-        {
-            CSLagrange r = new CSLagrange();
-
-            var xx = MathS.Var("x");
-            var addexp = 0 * xx;
-
-            for (int i = 0; i < y.Count; ++i)
-            {
-                var mulexp = xx/xx;
-                Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = this.threads }, j =>
-                {
-                    if (i != j)
-                    { 
-                        var res = r.Caclulate(xx, x[i], x[j]);
-                        mulexp *= res;
-                    }
-                });
-                var partialResult = y[i] * mulexp;
-                addexp += partialResult;
-            }
-            addexp = addexp.Simplify();
-            if (addexp.ToString() == "NaN")
-                result.Text = "Brak wielomianu interpolacyjnego";
-            else
-                result.Text = addexp.ToString();
         }
 
         public void CalculateAsm()
