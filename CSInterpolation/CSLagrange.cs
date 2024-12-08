@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,23 +14,26 @@ namespace CSInterpolation
         private string result = "";
         public CSLagrange(List<double> x, List<double> y, int threads)
         {
-            var xx = MathS.Var("x");
-            var addexp = 0 * xx;
+            ThreadPool.SetMinThreads(threads, threads);
+            ThreadPool.SetMaxThreads(threads, threads);
 
-            for (int i = 0; i < y.Count; ++i)
+            var xx = MathS.Var("x");
+            var partialResults = new ConcurrentBag<Entity>();
+            Parallel.For(0, y.Count, i =>
             {
-                var mulexp = xx / xx;
-                Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = threads }, j =>
+                var mulexp = xx/xx;
+                for (int j = 0; j < x.Count; ++j)
                 {
                     if (i != j)
                     {
                         var res = (xx - x[j]) / (x[i] - x[j]);
                         mulexp *= res;
                     }
-                });
+                }
                 var partialResult = y[i] * mulexp;
-                addexp += partialResult;
-            }
+                partialResults.Add(partialResult);
+            });
+            var addexp = partialResults.Aggregate(xx * 0, (sum, item) => sum + item);
             addexp = addexp.Simplify();
             if (addexp.ToString() == "NaN")
                 this.result = "Brak wielomianu interpolacyjnego";
