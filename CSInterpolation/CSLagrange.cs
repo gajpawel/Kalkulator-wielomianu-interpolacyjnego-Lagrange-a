@@ -12,15 +12,12 @@ namespace CSInterpolation
     public class CSLagrange
     {
         private string result = "";
-        public CSLagrange(List<double> x, List<double> y, int threads)
+        public CSLagrange(List<double> x, List<double> y)
         {
-            ThreadPool.SetMinThreads(threads, threads);
-            ThreadPool.SetMaxThreads(threads, threads);
-
             var xx = MathS.Var("x");
             var partialResults = new ConcurrentBag<Entity>();
-            Parallel.For(0, y.Count, i =>
-            {
+            for(int i = 0; i<y.Count; ++i)
+            { 
                 var mulexp = xx/xx;
                 for (int j = 0; j < x.Count; ++j)
                 {
@@ -32,7 +29,7 @@ namespace CSInterpolation
                 }
                 var partialResult = y[i] * mulexp;
                 partialResults.Add(partialResult);
-            });
+            }
             var addexp = partialResults.Aggregate(xx * 0, (sum, item) => sum + item);
             addexp = addexp.Simplify();
             if (addexp.ToString() == "NaN")

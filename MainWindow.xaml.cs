@@ -17,6 +17,9 @@ using AngouriMath;
 using CSInterpolation;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace Lagrange
 {
@@ -26,11 +29,10 @@ namespace Lagrange
     public partial class MainWindow : Window
     {
         int parameters = 2;
-        List<double> x = new List<double>();
-        List<double> y = new List<double>();
-        List<double> r = new List<double>();
+        List<Equation> equations = new List<Equation>();
         int threads = Environment.ProcessorCount;
-        bool asm = true;
+        bool asm = false;
+        string FilePath = "";
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
         static extern int LagrangeAsm(int a, int b);
@@ -50,58 +52,141 @@ namespace Lagrange
 
         private void ButtonCalculate_Click(object sender, RoutedEventArgs e)
         {
-            this.x.Clear();
-            this.y.Clear();
-            List<System.Windows.Controls.TextBox> tx = new List<System.Windows.Controls.TextBox> {x1, x2, x3, x4, x5 };
-            List<System.Windows.Controls.TextBox> ty = new List<System.Windows.Controls.TextBox> { y1, y2, y3, y4, y5 };
+            this.equations.Clear();
             try
             {
-                for (int i = 0; i < this.parameters; ++i)
+                string[] lines = File.ReadAllLines(FilePath);
+
+                if (lines.Length == 0)
                 {
-                    if (tx[i].Text.Length == 0 || ty[i].Text.Length == 0)
-                        return;
-                    this.x.Add(double.Parse(tx[i].Text));
-                    this.y.Add(double.Parse(ty[i].Text));
+                    result.Text = "Plik jest pusty.";
+                    return;
                 }
-            }catch (FormatException)
+
+                foreach (var line in lines)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    Equation equation = new Equation();
+
+                    // Regex do wyodrębnienia par (x, y) z linii
+                    var matches = Regex.Matches(line, @"\(([-+]?\d*\.?\d+),\s*([-+]?\d*\.?\d+)\)");
+
+                    if (matches.Count == 0)
+                    {
+                        result.Text = "Nieprawidłowy format danych";
+                        return;
+                    }
+
+                    try
+                    {
+                        foreach (Match match in matches)
+                        {
+                            // Parsowanie x i y
+                            double xValue = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                            double yValue = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+
+                            // Dodanie do list
+                            equation.x.Add(xValue);
+                            equation.y.Add(yValue);
+                        }
+
+                        // Sprawdzenie spójności danych
+                        if (equation.x.Count != equation.y.Count)
+                        {
+                            result.Text = "Niespójne dane";
+                            return;
+                        }
+
+                        // Dodanie równania do listy
+                        equations.Add(equation);
+                    }
+                    catch (FormatException)
+                    {
+                        result.Text = "Błąd formatowania danych";
+                        return;
+                    }
+                }
+            }
+            catch (FileNotFoundException)
             {
-                result.Text = "Nieprawidłowe argumenty.";
+                result.Text = "Nie znaleziono pliku. Sprawdź poprawność ścieżki.";
                 return;
             }
+            catch (InvalidDataException)
+            {
+                result.Text = "Błąd danych wejściowych";
+                return;
+            }
+
             DateTime startTime = DateTime.Now;
             if (this.asm)
                 CalculateAsm();
             else
-            { 
-                CSLagrange r = new CSLagrange(x, y, threads);
-                result.Text = r.getResult();
+            {
+                for (int i = 0; i < equations.Count; i++)
+                {
+                    CSLagrange r = new CSLagrange(equations[i].x, equations[i].y);
+                    equations[i].result = r.getResult();
+                }
             }
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
-            time.Text="Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
+            time.Text = "Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
+            // Generowanie zawartości pliku
+            StringBuilder fileContent = new StringBuilder();
+            fileContent.AppendLine($"Wygenerowano dnia: {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+
+            foreach (var equation in equations)
+            {
+                fileContent.AppendLine(equation.result);
+            }
+
+            // Otwieranie okna dialogowego
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Title = "Zapisz plik wynikowy",
+                Filter = "Pliki tekstowe (*.txt)|*.txt",
+                FileName = "Wyniki_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt"
+            };
+
+            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    // Zapis do pliku
+                    File.WriteAllText(saveFileDialog.FileName, fileContent.ToString());
+                    result.Text = "Plik zapisany pomyślnie";
+                }
+                catch (Exception ex)
+                {
+                    result.Text = "Błąd przy zapisie pliku";
+                }
+            }
         }
 
         public void CalculateAsm()
         {
-            var xx = MathS.Var("x");
-            var addexp = 0 * xx;
-
-            for (int i = 0; i < y.Count; ++i)
-            {
-                var mulexp = xx / xx;
-                Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = this.threads }, j =>
-                {
-                    if (i != j)
-                        LagrangeAsm(1, 2);
-                });
-                var partialResult = y[i] * mulexp;
-                addexp += partialResult;
-            }
-            addexp = addexp.Simplify();
-            if (addexp.ToString() == "NaN")
-                result.Text = "Brak wielomianu interpolacyjnego";
-            else
-                result.Text = addexp.ToString();
+            //var xx = MathS.Var("x");
+            //var addexp = 0 * xx;
+            //
+            //for (int i = 0; i < y.Count; ++i)
+            //{
+            //    var mulexp = xx / xx;
+            //    Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = this.threads }, j =>
+            //    {
+            //        if (i != j)
+            //            LagrangeAsm(1, 2);
+            //    });
+            //    var partialResult = y[i] * mulexp;
+            //    addexp += partialResult;
+            //}
+            //addexp = addexp.Simplify();
+            //if (addexp.ToString() == "NaN")
+            //    result.Text = "Brak wielomianu interpolacyjnego";
+            //else
+            //    result.Text = addexp.ToString();
         }
 
 
@@ -121,83 +206,18 @@ namespace Lagrange
             this.asm = false;
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ButtonRead_Click(object sender, RoutedEventArgs e)
         {
-            if (variables.SelectedItem is ComboBoxItem selectedItem && selectedItem.Content != null)
-            {
-                if (selectedItem.Content.ToString() == "3")
-                {
-                    x3.Visibility = Visibility.Visible;
-                    y3.Visibility = Visibility.Visible;
-                    x4.Visibility = Visibility.Hidden;
-                    y4.Visibility = Visibility.Hidden;
-                    x5.Visibility = Visibility.Hidden;
-                    y5.Visibility = Visibility.Hidden;
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Pliki tekstowe (*.txt)|*.txt";
+            openFileDialog.FilterIndex = 2;
+            openFileDialog.RestoreDirectory = true;
 
-                    Lx3.Visibility = Visibility.Visible;
-                    Ly3.Visibility = Visibility.Visible;
-                    Lx4.Visibility = Visibility.Hidden;
-                    Ly4.Visibility = Visibility.Hidden;
-                    Lx5.Visibility = Visibility.Hidden;
-                    Ly5.Visibility = Visibility.Hidden;
+            if (openFileDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+                return;
 
-                    this.parameters = 3;
-                }
-                else if (selectedItem.Content.ToString() == "4")
-                {
-                    x3.Visibility = Visibility.Visible;
-                    y3.Visibility = Visibility.Visible;
-                    x4.Visibility = Visibility.Visible;
-                    y4.Visibility = Visibility.Visible;
-                    x5.Visibility = Visibility.Hidden;
-                    y5.Visibility = Visibility.Hidden;
-
-                    Lx3.Visibility = Visibility.Visible;
-                    Ly3.Visibility = Visibility.Visible;
-                    Lx4.Visibility = Visibility.Visible;
-                    Ly4.Visibility = Visibility.Visible;
-                    Lx5.Visibility = Visibility.Hidden;
-                    Ly5.Visibility = Visibility.Hidden;
-
-                    this.parameters = 4;
-                }
-                else if (selectedItem.Content.ToString() == "5")
-                {
-                    x3.Visibility = Visibility.Visible;
-                    y3.Visibility = Visibility.Visible;
-                    x4.Visibility = Visibility.Visible;
-                    y4.Visibility = Visibility.Visible;
-                    x5.Visibility = Visibility.Visible;
-                    y5.Visibility = Visibility.Visible;
-
-                    Lx3.Visibility = Visibility.Visible;
-                    Ly3.Visibility = Visibility.Visible;
-                    Lx4.Visibility = Visibility.Visible;
-                    Ly4.Visibility = Visibility.Visible;
-                    Lx5.Visibility = Visibility.Visible;
-                    Ly5.Visibility = Visibility.Visible;
-
-                    this.parameters = 5;
-                }
-                else
-                {
-                    x3.Visibility = Visibility.Hidden;
-                    y3.Visibility = Visibility.Hidden;
-                    x4.Visibility = Visibility.Hidden;
-                    y4.Visibility = Visibility.Hidden;
-                    x5.Visibility = Visibility.Hidden;
-                    y5.Visibility = Visibility.Hidden;
-
-                    Lx3.Visibility = Visibility.Hidden;
-                    Ly3.Visibility = Visibility.Hidden;
-                    Lx4.Visibility = Visibility.Hidden;
-                    Ly4.Visibility = Visibility.Hidden;
-                    Lx5.Visibility = Visibility.Hidden;
-                    Ly5.Visibility = Visibility.Hidden;
-
-                    this.parameters = 2;
-                }
-            }
+            FilePath = openFileDialog.FileName;
+            FileName.Content = openFileDialog.SafeFileName;
         }
     }
 }
