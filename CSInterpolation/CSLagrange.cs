@@ -31,7 +31,7 @@ namespace CSInterpolation
                 partialResults.Add(partialResult);
             }
             var addexp = partialResults.Aggregate(xx * 0, (sum, item) => sum + item);
-            addexp = addexp.Simplify();
+            //addexp = addexp.Simplify();
             if (addexp.ToString() == "NaN")
                 this.result = "Brak wielomianu interpolacyjnego";
             else

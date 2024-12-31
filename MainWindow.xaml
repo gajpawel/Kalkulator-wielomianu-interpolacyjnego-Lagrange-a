@@ -5,11 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lagrange"
         mc:Ignorable="d"
-        Title="Interpolacja Lagrange'a" Height="375" Width="800" ResizeMode="CanMinimize" Background="#FFF4F4F4">
-    <Grid Margin="10,10,0,0" Height="324" VerticalAlignment="Top">
+        Title="Interpolacja Lagrange'a" Height="255" Width="800" ResizeMode="CanMinimize" Background="#FFF4F4F4">
+    <Grid Margin="10,10,0,0" Height="232" VerticalAlignment="Top">
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
@@ -20,17 +18,18 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Content="Oblicz" Grid.Row="3" Grid.Column="1" Click="ButtonCalculate_Click" Margin="43,6,217,6"/>
-        <Button Content="Czasy wykonania" Grid.Row="3" Grid.Column="1" Click="ButtonTime_Click" Margin="211,6,49,6"/>
-        <TextBlock Name="thr" Grid.Row="1" Grid.Column="1" Text="Liczba wątków: " FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,10,0,0"/>
-        <Slider Name="sliderThreads" Grid.Row="1" Grid.Column="1" Minimum="1" Maximum="64" TickFrequency="1" IsSnapToTickEnabled="True" Margin="171,0,10,0" ValueChanged="Slider_ValueChanged" VerticalAlignment="Center"/>
-        <TextBlock Name="result" Grid.Row="5" Grid.RowSpan="2" Grid.ColumnSpan="2" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FFB7ABAB" Margin="73,24,0,0" Width="644" Foreground="#FF050505" TextWrapping="Wrap"/>
-        <TextBlock Text="Implementacja: " Grid.Row="2" Grid.Column="1" Margin="20,0,0,0" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="181"/>
-        <RadioButton Content="Asembler" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" Checked="RadioButton_Checked_Asm" Margin="200,0,0,0"/>
-        <RadioButton Content="C#" IsChecked="True" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Checked="RadioButton_Checked_Cs" Margin="320,0,0,0"/>
-        <TextBlock x:Name="time" Text="Czas wykonania: " Grid.Row="4" Grid.Column="1" Margin="0,16,0,0" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="357"/>
+        <Button Content="Oblicz" Grid.Row="2" Grid.Column="0" Click="ButtonCalculate_Click" Margin="43,6,217,6"/>
+        <Button Content="Czasy wykonania" Grid.Row="2" Grid.Column="0" Click="ButtonTime_Click" Margin="211,6,49,6"/>
+        <TextBlock Name="thr" Grid.Row="0" Grid.Column="1" Text="Liczba wątków: " FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,10,0,0"/>
+        <Slider Name="sliderThreads" Grid.Row="0" Grid.Column="1" Minimum="1" Maximum="64" TickFrequency="1" IsSnapToTickEnabled="True" Margin="171,0,10,0" ValueChanged="Slider_ValueChanged" VerticalAlignment="Center"/>
+        <TextBlock Name="result" Grid.Row="3" Grid.RowSpan="2" Grid.ColumnSpan="2" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FFB7ABAB" Margin="73,24,0,0" Width="644" Foreground="#FF050505" TextWrapping="Wrap" TextAlignment="Center"/>
+        <TextBlock Text="Implementacja: " Grid.Row="1" Grid.Column="1" Margin="20,0,0,0" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="181"/>
+        <RadioButton Content="Asembler" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" Checked="RadioButton_Checked_Asm" Margin="200,0,0,0"/>
+        <RadioButton Content="C#" IsChecked="True" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Checked="RadioButton_Checked_Cs" Margin="320,0,0,0"/>
+        <TextBlock x:Name="time" Text="Czas wykonania: " Grid.Row="2" Grid.Column="1" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Width="322" Margin="20,0,0,0"/>
         <Button Content="Wczytaj plik" Click="ButtonRead_Click" Margin="10,6,250,6"/>
         <Label Name="FileName" Content="Nie wybrano pliku" HorizontalAlignment="Left" Margin="150,0,0,0" VerticalAlignment="Center" Height="35" Width="220" Background="White" FontSize="14"/>
+        <TextBlock Name="tEquations" Text="Liczba równań: " Grid.Row="1" Grid.Column="0" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Width="174"/>
     </Grid>
 
 </Window>

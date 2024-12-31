@@ -52,7 +52,8 @@ namespace Lagrange
 
         private void ButtonCalculate_Click(object sender, RoutedEventArgs e)
         {
-            this.equations.Clear();
+            //Odczyt z pliku
+            this.equations.Clear();   
             try
             {
                 string[] lines = File.ReadAllLines(FilePath);
@@ -62,7 +63,6 @@ namespace Lagrange
                     result.Text = "Plik jest pusty.";
                     return;
                 }
-
                 foreach (var line in lines)
                 {
                     if (string.IsNullOrWhiteSpace(line))
@@ -119,21 +119,30 @@ namespace Lagrange
                 result.Text = "Błąd danych wejściowych";
                 return;
             }
+            tEquations.Text = "Liczba równań: " + equations.Count.ToString();
 
+            //Obliczenia wielomianów interpolacyjnych
             DateTime startTime = DateTime.Now;
             if (this.asm)
                 CalculateAsm();
             else
             {
-                for (int i = 0; i < equations.Count; i++)
+                ParallelOptions parallelOptions = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = threads // Ustawienie maksymalnej liczby wątków
+                };
+
+                Parallel.For(0, equations.Count, parallelOptions, i =>
                 {
                     CSLagrange r = new CSLagrange(equations[i].x, equations[i].y);
                     equations[i].result = r.getResult();
-                }
+                });
             }
+
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
             time.Text = "Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
+
             // Generowanie zawartości pliku
             StringBuilder fileContent = new StringBuilder();
             fileContent.AppendLine($"Wygenerowano dnia: {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
@@ -159,7 +168,7 @@ namespace Lagrange
                     File.WriteAllText(saveFileDialog.FileName, fileContent.ToString());
                     result.Text = "Plik zapisany pomyślnie";
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     result.Text = "Błąd przy zapisie pliku";
                 }
