@@ -19,9 +19,10 @@ namespace Lagrange
     /// </summary>
     public partial class Stats : Window
     {
-        public Stats()
+        public Stats(string Text)
         {
             InitializeComponent();
+            StatsDescription.Text = Text;
         }
     }
 }

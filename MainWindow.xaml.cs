@@ -32,6 +32,9 @@ namespace Lagrange
         List<Equation> equations = new List<Equation>();
         int threads = Environment.ProcessorCount;
         bool asm = false;
+        bool stats = false;
+        bool error = false;
+        TimeSpan timeS;
         string FilePath = "";
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
@@ -39,19 +42,57 @@ namespace Lagrange
 
         public MainWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             sliderThreads.Value = Environment.ProcessorCount;
         }
 
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
         {
-            Stats s = new Stats();
+            if(FilePath=="")
+            {
+                result.Text = "Nie przesłano pliku";
+                return;
+            }
+
+            string statsText = "Czasy wykonania programu w zależności od liczby wątków i sposobu implementacji algorytmu.\n\nJęzyk wysokiego poziomu:\n";
+            stats = true;
+            threads = 1;
+
+            while(threads!=128)
+            {
+                TimeSpan t = TimeSpan.Zero;
+                statsText += "Liczba wątków: " + threads + "\t\t";
+                for(int i = 0; i<5; ++i)
+                {
+                    ButtonCalculate_Click(null, null);
+                    if (error)
+                        return;
+                    t += timeS;
+                }
+                t /= 5;
+                statsText += "średni czas: " + t.TotalMilliseconds + " ms\n";
+                threads *= 2;
+            }
+            statsText += "\nJęzyk niskiego poziomu:\nAlgorytm w trakcie budowy.";
+            
+            Stats s = new Stats(statsText);
             s.Activate();
             s.Show();
+            
+            result.Text = "Zakończono generowanie.";
+            stats = false;
+            threads = int.Parse(sliderThreads.Value.ToString());
         }
 
         private void ButtonCalculate_Click(object sender, RoutedEventArgs e)
         {
+            if (FilePath == "")
+            {
+                result.Text = "Nie przesłano pliku tekstowego.";
+                error = true;
+                return;
+            }
+
             //Odczyt z pliku
             this.equations.Clear();   
             try
@@ -61,6 +102,7 @@ namespace Lagrange
                 if (lines.Length == 0)
                 {
                     result.Text = "Plik jest pusty.";
+                    error = true;
                     return;
                 }
                 foreach (var line in lines)
@@ -76,6 +118,7 @@ namespace Lagrange
                     if (matches.Count == 0)
                     {
                         result.Text = "Nieprawidłowy format danych";
+                        error = true;
                         return;
                     }
 
@@ -96,6 +139,7 @@ namespace Lagrange
                         if (equation.x.Count != equation.y.Count)
                         {
                             result.Text = "Niespójne dane";
+                            error = true;
                             return;
                         }
 
@@ -105,6 +149,7 @@ namespace Lagrange
                     catch (FormatException)
                     {
                         result.Text = "Błąd formatowania danych";
+                        error = true;
                         return;
                     }
                 }
@@ -112,11 +157,13 @@ namespace Lagrange
             catch (FileNotFoundException)
             {
                 result.Text = "Nie znaleziono pliku. Sprawdź poprawność ścieżki.";
+                error = true;
                 return;
             }
             catch (InvalidDataException)
             {
                 result.Text = "Błąd danych wejściowych";
+                error = true;
                 return;
             }
             tEquations.Text = "Liczba równań: " + equations.Count.ToString();
@@ -141,8 +188,15 @@ namespace Lagrange
 
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
+            timeS = timeSpan;
             time.Text = "Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
+            
+            if(!stats)
+                SaveFile();
+        }
 
+        public void SaveFile()
+        {
             // Generowanie zawartości pliku
             StringBuilder fileContent = new StringBuilder();
             fileContent.AppendLine($"Wygenerowano dnia: {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");

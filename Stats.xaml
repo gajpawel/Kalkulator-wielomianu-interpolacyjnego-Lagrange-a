@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lagrange"
         mc:Ignorable="d"
-        Title="Stats" Height="450" Width="800" ResizeMode="CanMinimize" Background="#FFF4F4F4">
+        Title="Czasy wykonania" Height="394" Width="726" ResizeMode="CanMinimize" Background="#FFF4F4F4">
     <Grid>
-        <TextBox HorizontalAlignment="Left" Margin="45,35,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="698" Height="352"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="31*"/>
+            <ColumnDefinition Width="695*"/>
+        </Grid.ColumnDefinitions>
+        <TextBox Name="StatsDescription" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="628" Height="284" FontSize="14" Grid.Column="1" Margin="18,0,0,0"/>
     </Grid>
 </Window>
