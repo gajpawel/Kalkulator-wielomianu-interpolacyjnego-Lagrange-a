@@ -170,21 +170,22 @@ namespace Lagrange
 
             //Obliczenia wielomianów interpolacyjnych
             DateTime startTime = DateTime.Now;
-            if (this.asm)
-                CalculateAsm();
-            else
+            
+            ParallelOptions parallelOptions = new ParallelOptions
             {
-                ParallelOptions parallelOptions = new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = threads // Ustawienie maksymalnej liczby wątków
-                };
+                MaxDegreeOfParallelism = threads // Ustawienie maksymalnej liczby wątków
+            };
 
-                Parallel.For(0, equations.Count, parallelOptions, i =>
+            Parallel.For(0, equations.Count, parallelOptions, i =>
+            {
+                if (asm)
+                    CalculateAsm();
+                else
                 {
                     CSLagrange r = new CSLagrange(equations[i].x, equations[i].y);
                     equations[i].result = r.getResult();
-                });
-            }
+                }
+            });
 
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
