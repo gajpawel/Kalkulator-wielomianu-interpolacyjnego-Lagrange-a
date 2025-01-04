@@ -28,25 +28,26 @@ namespace CSInterpolation
                 {
                     if (i != j)
                     {
-                        // Mnożymy L_i(x) przez (x - x[j]) / (x[i] - x[j])
                         double denominator = x[i] - x[j];
-                        double[] temp = new double[degree + 1];
+                        double[] newCoefficients = new double[degree + 1];
 
-                        // Przesunięcie współczynników i dodanie do nowej tablicy
-                        for (int k = degree; k > 0; --k)
+                        // Przesunięcie współczynników i dodanie nowego składnika
+                        for (int k = degree; k >= 0; --k)
                         {
-                            temp[k] += liCoefficients[k - 1];
+                            if (k > 0)
+                            {
+                                newCoefficients[k] += liCoefficients[k - 1];
+                            }
+                            newCoefficients[k] -= liCoefficients[k] * x[j];
                         }
-                        temp[0] -= x[j];
 
                         // Dzielimy przez denominator
                         for (int k = 0; k <= degree; ++k)
                         {
-                            temp[k] /= denominator;
+                            newCoefficients[k] /= denominator;
                         }
 
-                        // Przypisujemy do liCoefficients
-                        liCoefficients = temp;
+                        liCoefficients = newCoefficients;
                     }
                 }
 
