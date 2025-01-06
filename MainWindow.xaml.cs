@@ -28,7 +28,6 @@ namespace Lagrange
     /// </summary>
     public partial class MainWindow : Window
     {
-        int parameters = 2;
         List<Equation> equations = new List<Equation>();
         int threads = Environment.ProcessorCount;
         bool asm = false;
@@ -38,7 +37,8 @@ namespace Lagrange
         string FilePath = "";
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
-        static extern int LagrangeAsm(int a, int b);
+        static extern IntPtr LagrangeAsm(double[] x, double[] y, int length, IntPtr resultPtr);
+
 
         public MainWindow()
         {
@@ -57,6 +57,7 @@ namespace Lagrange
             string statsText = "Czasy wykonania programu w zależności od liczby wątków i sposobu implementacji algorytmu.\n\nJęzyk wysokiego poziomu:\n";
             stats = true;
             threads = 1;
+            asm = false;
 
             while(threads!=128)
             {
@@ -73,8 +74,26 @@ namespace Lagrange
                 statsText += "średni czas: " + t.TotalMilliseconds + " ms\n";
                 threads *= 2;
             }
-            statsText += "\nJęzyk niskiego poziomu:\nAlgorytm w trakcie budowy.";
-            
+
+            statsText += "\nJęzyk niskiego poziomu (algorytm w trakcie budowy):\n";
+            threads = 1;
+            asm = true;
+            while (threads != 128)
+            {
+                TimeSpan t = TimeSpan.Zero;
+                statsText += "Liczba wątków: " + threads + "\t\t";
+                for (int i = 0; i < 5; ++i)
+                {
+                    ButtonCalculate_Click(null, null);
+                    if (error)
+                        return;
+                    t += timeS;
+                }
+                t /= 5;
+                statsText += "średni czas: " + t.TotalMilliseconds + " ms\n";
+                threads *= 2;
+            }
+
             Stats s = new Stats(statsText);
             s.Activate();
             s.Show();
@@ -179,7 +198,35 @@ namespace Lagrange
             Parallel.For(0, equations.Count, parallelOptions, i =>
             {
                 if (asm)
-                    CalculateAsm();
+                {
+                    //CalculateAsm();
+                    int length = equations[i].y.Count;
+                    double[] resultArray = new double[length];
+                    GCHandle handle = GCHandle.Alloc(resultArray, GCHandleType.Pinned);
+
+                    try
+                    {
+                        IntPtr resultPtr = handle.AddrOfPinnedObject();
+                        LagrangeAsm(equations[i].x.ToArray(), equations[i].y.ToArray(), length, resultPtr);
+                    }
+                    finally
+                    {
+                        handle.Free();
+                    }
+
+                    for (int j = resultArray.Length - 1; j > 1; --j)
+                    {
+                        double coefR = Math.Round(resultArray[j], 2);
+                        if (coefR != 0)
+                        {
+                            if (coefR != 1)
+                                equations[i].result += coefR;
+                            equations[i].result += "x^" + j + " + ";
+                        }
+                    }
+                    equations[i].result += Math.Round(resultArray[1], 2) + "x + ";
+                    equations[i].result += Math.Round(resultArray[0], 2);
+                }
                 else
                 {
                     CSLagrange r = new CSLagrange(equations[i].x, equations[i].y);
