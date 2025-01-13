@@ -12,24 +12,24 @@ namespace CSInterpolation
     public class CSLagrange
     {
         private string result = "";
-        public double[] coefficients { get; private set; }
-        public CSLagrange(List<double> x, List<double> y)
+        public float[] coefficients { get; private set; }
+        public CSLagrange(List<float> x, List<float> y)
         {
             int degree = x.Count - 1;
-            coefficients = new double[degree + 1];
+            coefficients = new float[degree + 1];
 
             for (int i = 0; i < y.Count; ++i)
             {
                 // Oblicz wielomian L_i(x) i pomnóż przez y[i]
-                double[] liCoefficients = new double[degree + 1];
+                float[] liCoefficients = new float[degree + 1];
                 liCoefficients[0] = 1; // L_i(x) zaczyna się od 1 jako stała
 
                 for (int j = 0; j < x.Count; ++j)
                 {
                     if (i != j)
                     {
-                        double denominator = x[i] - x[j];
-                        double[] newCoefficients = new double[degree + 1];
+                        float denominator = x[i] - x[j];
+                        float[] newCoefficients = new float[degree + 1];
 
                         // Przesunięcie współczynników i dodanie nowego składnika
                         for (int k = degree; k >= 0; --k)
@@ -61,7 +61,7 @@ namespace CSInterpolation
             // Przekształcamy tablicę współczynników na postać tekstową
             for (int i = coefficients.Length - 1; i > 1; --i)
             {
-                double coefR = Math.Round(coefficients[i], 2);
+                float coefR = (float)Math.Round(coefficients[i], 2);
                 if (coefR != 0)
                 {
                     if(coefR != 1)

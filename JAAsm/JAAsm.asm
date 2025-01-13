@@ -1,34 +1,43 @@
 .code
 LagrangeAsm proc
-    ; RCX = wskaünik do tablicy x
-    ; RDX = wskaünik do tablicy y
-    ; R8  = d≥ugoúÊ tablicy
-    ; R9  = wskaünik do tablicy wynikowej
+; Argumenty:
+    ; RCX: wskaünik na liCoefficients
+    ; RDX: wskaünik na x
+    ; R8: degree (int)
+    ; R9: i (int)
+    ; [rsp+28h]: j (int)
 
-    ; R11 bÍdzie pe≥ni≥ rolÍ indeksu w pÍtli
-    xor r11, r11          ; R11 = 0 (indeks startowy)
+    push rbx
+    push rdi
 
-LoopStart:
-    cmp r11, R8           ; Czy R11 < d≥ugoúÊ tablicy?
-    jge LoopEnd           ; Jeúli nie, wyjdü z pÍtli
+    ; Wczytanie argumentÛw
+    mov rdi, rcx                    ; wskaünik na liCoefficients
+    mov rsi, rdx                    ; wskaünik na x
+    mov ecx, r8d                    ; degree
+    mov eax, r9d                    ; indeks i
+    mov edx, dword ptr [rsp+28h]    ; indeks j
 
-    ; Za≥aduj x[i] do XMM0
-    movsd xmm0, qword ptr [RCX + r11 * 8]
+    ; Obliczenie denominator = x[i] - x[j]
+    movss xmm0, dword ptr [rsi + rax*4] ; xmm0 = x[i]
+    movss xmm1, dword ptr [rsi + rdx*4] ; xmm1 = x[j]
+    subss xmm0, xmm1                 ; xmm0 = x[i] - x[j]
 
-    ; Za≥aduj y[i] do XMM1
-    movsd xmm1, qword ptr [RDX + r11 * 8]
+    ; Iteracja przez wspÛ≥czynniki liCoefficients
+    xor ebx, ebx                     ; k = 0
+loopx:
+    ; liCoefficients[k] -= liCoefficients[k] * x[j]
+    movss xmm2, dword ptr [rdi + rbx*4] ; xmm2 = liCoefficients[k]
+    mulss xmm2, xmm1                 ; xmm2 *= x[j]
+    subss xmm2, dword ptr [rdi + rbx*4] ; liCoefficients[k] -= xmm2
+    divss xmm2, xmm0                 ; xmm2 /= denominator
+    movss dword ptr [rdi + rbx*4], xmm2 ; zapis wyniku
 
-    ; Dodaj x[i] + y[i] i zapisz wynik w XMM0
-    addsd xmm0, xmm1
+    inc ebx                          ; k++
+    cmp ebx, ecx                     ; k <= degree
+    jle loopx
 
-    ; Zapisz wynik do tablicy wynikowej
-    movsd qword ptr [R9 + r11 * 8], xmm0
-
-    ; ZwiÍksz indeks (R11++)
-    inc r11
-    jmp LoopStart          ; PowrÛt do poczπtku pÍtli
-
-LoopEnd:
-    ret                    ; ZakoÒcz funkcjÍ
+    pop rdi
+    pop rbx
+    ret
 LagrangeAsm endp
 end

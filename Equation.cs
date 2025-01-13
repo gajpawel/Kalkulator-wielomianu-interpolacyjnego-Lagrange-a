@@ -8,8 +8,8 @@ namespace Lagrange
 {
     internal class Equation
     {
-        public List<double> x = new List<double>();
-        public List<double> y = new List<double>();
+        public List<float> x = new List<float>();
+        public List<float> y = new List<float>();
         public string result = "";
     }
 }

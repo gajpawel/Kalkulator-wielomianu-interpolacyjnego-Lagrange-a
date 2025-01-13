@@ -20,6 +20,7 @@ using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using MathNet.Symbolics;
 
 namespace Lagrange
 {
@@ -37,8 +38,7 @@ namespace Lagrange
         string FilePath = "";
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
-        static extern IntPtr LagrangeAsm(double[] x, double[] y, int length, IntPtr resultPtr);
-
+        static extern void LagrangeAsm(float[] liCoefficients, float[] x, int degree, int i, int j);
 
         public MainWindow()
         {
@@ -146,8 +146,8 @@ namespace Lagrange
                         foreach (Match match in matches)
                         {
                             // Parsowanie x i y
-                            double xValue = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                            double yValue = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                            float xValue = float.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                            float yValue = float.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
 
                             // Dodanie do list
                             equation.x.Add(xValue);
@@ -195,28 +195,40 @@ namespace Lagrange
                 MaxDegreeOfParallelism = threads // Ustawienie maksymalnej liczby wątków
             };
 
-            Parallel.For(0, equations.Count, parallelOptions, i =>
+            //Parallel.For(0, equations.Count, parallelOptions, i =>
+            for(int i = 0; i < equations.Count; ++i)
             {
                 if (asm)
                 {
-                    //CalculateAsm();
-                    int length = equations[i].y.Count;
-                    double[] resultArray = new double[length];
-                    GCHandle handle = GCHandle.Alloc(resultArray, GCHandleType.Pinned);
+                    int degree = equations[i].x.Count;
+                    float[] coefficients = new float[degree + 1];
 
-                    try
+                    for (int l = 0; l < equations[i].y.Count; ++l)
                     {
-                        IntPtr resultPtr = handle.AddrOfPinnedObject();
-                        LagrangeAsm(equations[i].x.ToArray(), equations[i].y.ToArray(), length, resultPtr);
-                    }
-                    finally
-                    {
-                        handle.Free();
+                        // Oblicz wielomian L_i(x) i pomnóż przez y[i]
+                        float[] liCoefficients = new float[degree + 1];
+                        liCoefficients[0] = 1; // L_i(x) zaczyna się od 1 jako stała
+
+
+                        for (int j = 0; j < equations[i].x.Count; ++j)
+                        {
+                            if (l != j)
+                            {
+                                // Wywołanie funkcji asemblerowej zamiast realizacji w pętli
+                                LagrangeAsm(liCoefficients, equations[i].x.ToArray(), degree, l, j);
+                            }
+                        }
+
+                        // Dodajemy y[i] * L_i(x) do końcowego wielomianu
+                        for (int k = 0; k <= degree-1; ++k)
+                        {
+                            coefficients[k] += equations[i].y[l] * liCoefficients[k];
+                        }
                     }
 
-                    for (int j = resultArray.Length - 1; j > 1; --j)
+                    for (int j = coefficients.Length - 1; j > 1; --j)
                     {
-                        double coefR = Math.Round(resultArray[j], 2);
+                        float coefR = (float)Math.Round(coefficients[j], 2);
                         if (coefR != 0)
                         {
                             if (coefR != 1)
@@ -224,15 +236,15 @@ namespace Lagrange
                             equations[i].result += "x^" + j + " + ";
                         }
                     }
-                    equations[i].result += Math.Round(resultArray[1], 2) + "x + ";
-                    equations[i].result += Math.Round(resultArray[0], 2);
+                    equations[i].result += Math.Round(coefficients[1], 2) + "x + ";
+                    equations[i].result += Math.Round(coefficients[0], 2);
                 }
                 else
                 {
                     CSLagrange r = new CSLagrange(equations[i].x, equations[i].y);
                     equations[i].result = r.getResult();
                 }
-            });
+            }//);
 
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;
