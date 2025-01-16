@@ -1,51 +1,62 @@
 .code
 LagrangeAsm proc
 ; Argumenty:
-    ; RCX: wskaŸnik na liCoefficients
-    ; RDX: wskaŸnik na x
-    ; R8: degree (int)
-    ; R9: i (int)
-    ; [rsp+28h]: j (int)
+    ; RCX: liCoefficients
+    ; RDX: x
+    ; R8: newCoefficients
+    ; R9: j (int)
+    ; [rsp+20h]: i (int)
+    ; [rsp+28h]: degree (int)
 
     push rbx
     push rdi
 
-    mov rax, rdx          ; Skopiuj adres tablicy z RCX do RAX
-    movdqu xmm0, [rax+4]      ; Za³aduj zerowy element tablicy do XMM3
+    ; Przesuniêcie wspó³czynników i dodanie nowego sk³adnika
+    mov r11, [rsp+28h]
+loop_dec:
+    test r11, r11
+    jz decrease ; if k > 0
 
-    pop rdi
-    pop rbx
-    ret
-LagrangeAsm endp
-end
+;newCoefficients[k] += liCoefficients[k - 1]
+    movdqu xmm2, [R8+r11*4]
+    movdqu xmm3, [RCX+r11*4-4]
+    addss xmm2, xmm3
+    movdqu [R8+r11*4], xmm2
+    
+decrease:
+;newCoefficients[k] -= liCoefficients[k] * x[j]
+    movdqu xmm2, [RCX+r11*4]
+    movdqu xmm3, [RDX+R9*4]
+    mulss xmm2, xmm3
+    movdqu xmm3, [R8+r11*4]
+    subss xmm3, xmm2
+    movdqu [R8+r11*4], xmm3
 
-    ; Wczytanie argumentów
-    movdqu xmm0, [rcx]
-    movdqu xmm1, [rdx]
-    mov rdi, rcx                    ; wskaŸnik na liCoefficients
-    mov rsi, rdx                    ; wskaŸnik na x
-    mov ecx, r8d                    ; degree
-    mov eax, r9d                    ; indeks i
-    mov edx, dword ptr [rsp+28h]    ; indeks j
+    sub r11, 1
+    test r11, r11
+    jg loop_dec
 
-    ; Obliczenie denominator = x[i] - x[j]
-    movss xmm0, dword ptr [rsi + rax*4] ; xmm0 = x[i]
-    movss xmm1, dword ptr [rsi + rdx*4] ; xmm1 = x[j] tu jest zg³aszany wyj¹tek
-    subss xmm0, xmm1                 ; xmm0 = x[i] - x[j]
+;Obliczanie denominatora
+    mov r10, [rsp+20h]
+    movdqu xmm0, [rdx+r10*4] ;xmm0 = x[i]
+    movdqu xmm1, [rdx+r9*4]
+    subss xmm0, xmm1 ;xmm0 = x[i] - x[j]
 
-    ; Iteracja przez wspó³czynniki liCoefficients
-    xor ebx, ebx                     ; k = 0
-loopx:
-    ; liCoefficients[k] -= liCoefficients[k] * x[j]
-    movss xmm2, dword ptr [rdi + rbx*4] ; xmm2 = liCoefficients[k]
-    mulss xmm2, xmm1                 ; xmm2 *= x[j]
-    subss xmm2, dword ptr [rdi + rbx*4] ; liCoefficients[k] -= xmm2
-    divss xmm2, xmm0                 ; xmm2 /= denominator
-    movss dword ptr [rdi + rbx*4], xmm2 ; zapis wyniku
+    xor r11, r11
 
-    inc ebx                          ; k++
-    cmp ebx, ecx                     ; k <= degree
-    jle loopx
+loop_inc:
+;newCoefficients[k] /= denominator;
+    movdqu xmm1, [R8+r11*4]
+    divss xmm1, xmm0
+    movdqu [R8+r11*4], xmm1
+
+    add r11, 1
+    test r11, [rsp+28h]
+    jle loop_inc
+
+;liCoefficients = newCoefficients
+;tutaj dorobic kopiowanie newCoefficients do liCoefficients lub zwracanie tablicy R8
+
 
     pop rdi
     pop rbx
