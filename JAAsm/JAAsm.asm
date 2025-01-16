@@ -10,7 +10,18 @@ LagrangeAsm proc
     push rbx
     push rdi
 
+    mov rax, rdx          ; Skopiuj adres tablicy z RCX do RAX
+    movdqu xmm0, [rax+4]      ; Za³aduj zerowy element tablicy do XMM3
+
+    pop rdi
+    pop rbx
+    ret
+LagrangeAsm endp
+end
+
     ; Wczytanie argumentów
+    movdqu xmm0, [rcx]
+    movdqu xmm1, [rdx]
     mov rdi, rcx                    ; wskaŸnik na liCoefficients
     mov rsi, rdx                    ; wskaŸnik na x
     mov ecx, r8d                    ; degree
@@ -19,7 +30,7 @@ LagrangeAsm proc
 
     ; Obliczenie denominator = x[i] - x[j]
     movss xmm0, dword ptr [rsi + rax*4] ; xmm0 = x[i]
-    movss xmm1, dword ptr [rsi + rdx*4] ; xmm1 = x[j]
+    movss xmm1, dword ptr [rsi + rdx*4] ; xmm1 = x[j] tu jest zg³aszany wyj¹tek
     subss xmm0, xmm1                 ; xmm0 = x[i] - x[j]
 
     ; Iteracja przez wspó³czynniki liCoefficients

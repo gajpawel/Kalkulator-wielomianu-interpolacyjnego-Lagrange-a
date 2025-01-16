@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Lagrange": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

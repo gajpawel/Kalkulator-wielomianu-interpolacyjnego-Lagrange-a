@@ -38,7 +38,7 @@ namespace Lagrange
         string FilePath = "";
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
-        static extern void LagrangeAsm(float[] liCoefficients, float[] x, int degree, int i, int j);
+        static extern float LagrangeAsm(float[] liCoefficients, float[] x, int degree, float i, int j);
 
         public MainWindow()
         {
@@ -195,8 +195,8 @@ namespace Lagrange
                 MaxDegreeOfParallelism = threads // Ustawienie maksymalnej liczby wątków
             };
 
-            //Parallel.For(0, equations.Count, parallelOptions, i =>
-            for(int i = 0; i < equations.Count; ++i)
+            Parallel.For(0, equations.Count, parallelOptions, i =>
+            //for(int i = 0; i < equations.Count; ++i)
             {
                 if (asm)
                 {
@@ -209,13 +209,13 @@ namespace Lagrange
                         float[] liCoefficients = new float[degree + 1];
                         liCoefficients[0] = 1; // L_i(x) zaczyna się od 1 jako stała
 
-
                         for (int j = 0; j < equations[i].x.Count; ++j)
                         {
                             if (l != j)
                             {
+                                float[] xArray = equations[i].x.ToArray();
                                 // Wywołanie funkcji asemblerowej zamiast realizacji w pętli
-                                LagrangeAsm(liCoefficients, equations[i].x.ToArray(), degree, l, j);
+                                float y = LagrangeAsm(liCoefficients, xArray, degree, l, j);
                             }
                         }
 
@@ -244,7 +244,7 @@ namespace Lagrange
                     CSLagrange r = new CSLagrange(equations[i].x, equations[i].y);
                     equations[i].result = r.getResult();
                 }
-            }//);
+            });
 
             DateTime stopTime = DateTime.Now;
             TimeSpan timeSpan = stopTime - startTime;

@@ -1,4 +1,0 @@
-Wygenerowano dnia: 2025-01-13 21:41:45
-NaNx^3 + NaNx^2 + NaNx + NaN
-0x + -4,03
-0x + 3,65
