@@ -5,14 +5,14 @@ LagrangeAsm proc
     ; RDX: x
     ; R8: newCoefficients
     ; R9: j (int)
-    ; [rsp+28h]: i (int)
-    ; [rsp+36h]: degree (int)
+    ; [rsp+40]: i (int)
+    ; [rsp+48]: degree (int)
 
-    push rbx
-    push rdi
+    ;push rbx
+    ;push rdi
 
     ; Przesuniêcie wspó³czynników i dodanie nowego sk³adnika
-    mov r11, [rsp+36h]
+    mov r11, [rsp+48]
 loop_dec:
     test r11, r11
     jz decrease ; if k > 0
@@ -37,7 +37,7 @@ decrease:
     jg loop_dec
 
 ;Obliczanie denominatora
-    mov r10, [rsp+28h]
+    mov r10, [rsp+40]
     movdqu xmm0, [rdx+4*r10] ;xmm0 = x[i]
     movdqu xmm1, [rdx+4*r9]
     subss xmm0, xmm1 ;xmm0 = x[i] - x[j]
@@ -51,15 +51,15 @@ loop_inc:
     movdqu [R8+r11], xmm1
 
     add r11, 4
-    test r11, [rsp+36h]
+    test r11, [rsp+48]
     jle loop_inc
 
 ;liCoefficients = newCoefficients
 ;tutaj dorobic kopiowanie newCoefficients do liCoefficients lub zwracanie tablicy R8
 
 
-    pop rdi
-    pop rbx
+    ;pop rdi
+    ;pop rbx
     ret
 LagrangeAsm endp
 end

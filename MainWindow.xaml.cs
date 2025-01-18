@@ -30,8 +30,8 @@ namespace Lagrange
     public partial class MainWindow : Window
     {
         List<Equation> equations = new List<Equation>();
-        int threads = Environment.ProcessorCount;
-        bool asm = false;
+        int threads = 1;// Environment.ProcessorCount;
+        bool asm = true; //false;
         bool stats = false;
         bool error = false;
         TimeSpan timeS;
@@ -43,7 +43,7 @@ namespace Lagrange
         public MainWindow()
         {
             InitializeComponent();
-            sliderThreads.Value = Environment.ProcessorCount;
+            sliderThreads.Value = 1;//Environment.ProcessorCount;
         }
 
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
