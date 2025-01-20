@@ -13,6 +13,7 @@ LagrangeAsm proc
 
     ; Przesuniêcie wspó³czynników i dodanie nowego sk³adnika
     mov r11, [rsp+48]
+    shl r11, 2
 loop_dec:
     test r11, r11
     jz decrease ; if k > 0
@@ -34,7 +35,7 @@ decrease:
 
     sub r11, 4
     test r11, r11
-    jg loop_dec
+    jge loop_dec
 
 ;Obliczanie denominatora
     mov r10, [rsp+40]
@@ -43,6 +44,8 @@ decrease:
     subss xmm0, xmm1 ;xmm0 = x[i] - x[j]
 
     xor r11, r11
+    mov r12, [rsp+48]
+    shl r12, 2
 
 loop_inc:
 ;newCoefficients[k] /= denominator;
@@ -51,7 +54,7 @@ loop_inc:
     movdqu [R8+r11], xmm1
 
     add r11, 4
-    test r11, [rsp+48]
+    test r11, r12
     jle loop_inc
 
 ;liCoefficients = newCoefficients

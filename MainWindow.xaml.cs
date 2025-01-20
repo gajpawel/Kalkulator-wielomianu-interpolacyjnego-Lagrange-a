@@ -38,7 +38,7 @@ namespace Lagrange
         string FilePath = "";
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
-        static extern float LagrangeAsm(float[] liCoefficients, float[] x, float[] newCoefficients, int j, int i, int degree);
+        static extern void LagrangeAsm(float[] liCoefficients, float[] x, float[] newCoefficients, int j, int i, int degree);
 
         public MainWindow()
         {
@@ -216,7 +216,8 @@ namespace Lagrange
                                 float[] xArray = equations[i].x.ToArray();
                                 float[] newCoefficients = new float[degree + 1];
                                 // Wywołanie funkcji asemblerowej zamiast realizacji w pętli
-                                float y = LagrangeAsm(liCoefficients, xArray, newCoefficients, j, l, degree);
+                                LagrangeAsm(liCoefficients, xArray, newCoefficients, j, l, degree);
+                                liCoefficients = newCoefficients;
                             }
                         }
 
