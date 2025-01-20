@@ -1,26 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Threading;
-using Lagrange;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using AngouriMath;
 using CSInterpolation;
-using System.Reflection;
-using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
-using MathNet.Symbolics;
 
 namespace Lagrange
 {
@@ -30,8 +14,8 @@ namespace Lagrange
     public partial class MainWindow : Window
     {
         List<Equation> equations = new List<Equation>();
-        int threads = 1;// Environment.ProcessorCount;
-        bool asm = true; //false;
+        int threads = Environment.ProcessorCount;
+        bool asm = true;
         bool stats = false;
         bool error = false;
         TimeSpan timeS;
@@ -43,7 +27,7 @@ namespace Lagrange
         public MainWindow()
         {
             InitializeComponent();
-            sliderThreads.Value = 1;//Environment.ProcessorCount;
+            sliderThreads.Value = Environment.ProcessorCount;
         }
 
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
@@ -75,7 +59,7 @@ namespace Lagrange
                 threads *= 2;
             }
 
-            statsText += "\nJęzyk niskiego poziomu (algorytm w trakcie budowy):\n";
+            statsText += "\nJęzyk niskiego poziomu:\n";
             threads = 1;
             asm = true;
             while (threads != 128)
@@ -196,11 +180,10 @@ namespace Lagrange
             };
 
             Parallel.For(0, equations.Count, parallelOptions, i =>
-            //for(int i = 0; i < equations.Count; ++i)
             {
                 if (asm)
                 {
-                    int degree = equations[i].x.Count;
+                    int degree = equations[i].x.Count-1;
                     float[] coefficients = new float[degree + 1];
 
                     for (int l = 0; l < equations[i].y.Count; ++l)
@@ -222,7 +205,7 @@ namespace Lagrange
                         }
 
                         // Dodajemy y[i] * L_i(x) do końcowego wielomianu
-                        for (int k = 0; k <= degree-1; ++k)
+                        for (int k = 0; k <= degree; ++k)
                         {
                             coefficients[k] += equations[i].y[l] * liCoefficients[k];
                         }
@@ -291,30 +274,6 @@ namespace Lagrange
             }
         }
 
-        public void CalculateAsm()
-        {
-            //var xx = MathS.Var("x");
-            //var addexp = 0 * xx;
-            //
-            //for (int i = 0; i < y.Count; ++i)
-            //{
-            //    var mulexp = xx / xx;
-            //    Parallel.For(0, x.Count, new ParallelOptions { MaxDegreeOfParallelism = this.threads }, j =>
-            //    {
-            //        if (i != j)
-            //            LagrangeAsm(1, 2);
-            //    });
-            //    var partialResult = y[i] * mulexp;
-            //    addexp += partialResult;
-            //}
-            //addexp = addexp.Simplify();
-            //if (addexp.ToString() == "NaN")
-            //    result.Text = "Brak wielomianu interpolacyjnego";
-            //else
-            //    result.Text = addexp.ToString();
-        }
-
-
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             thr.Text = "Liczba wątków: " + sliderThreads.Value.ToString();
@@ -340,7 +299,6 @@ namespace Lagrange
 
             if (openFileDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
                 return;
-
             FilePath = openFileDialog.FileName;
             FileName.Content = openFileDialog.SafeFileName;
         }

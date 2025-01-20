@@ -5,18 +5,27 @@ LagrangeAsm proc
     ; RDX: x
     ; R8: newCoefficients
     ; R9: j (int)
-    ; [rsp+40]: i (int)
+    ; [rsp+40]: i/l (int)
     ; [rsp+48]: degree (int)
 
-    ;push rbx
-    ;push rdi
+    mov r10, [rsp+40]
+    mov rax, [rsp+48]
+
+    push rbx
+    push rbp
+    push rdi
+    push rsi
+    push r12
+    push r13
+    push r14
+    push r15
 
     ; Przesuniêcie wspó³czynników i dodanie nowego sk³adnika
-    mov r11, [rsp+48]
+    mov r11, rax
     shl r11, 2
 loop_dec:
-    test r11, r11
-    jz decrease ; if k > 0
+    cmp r11, 0
+    jle decrease ; if k > 0
 
 ;newCoefficients[k] += liCoefficients[k - 1]
     movdqu xmm2, [R8+r11]
@@ -34,17 +43,16 @@ decrease:
     movdqu [R8+r11], xmm3
 
     sub r11, 4
-    test r11, r11
+    cmp r11, 0
     jge loop_dec
 
 ;Obliczanie denominatora
-    mov r10, [rsp+40]
     movdqu xmm0, [rdx+4*r10] ;xmm0 = x[i]
     movdqu xmm1, [rdx+4*r9]
     subss xmm0, xmm1 ;xmm0 = x[i] - x[j]
 
     xor r11, r11
-    mov r12, [rsp+48]
+    mov r12, rax
     shl r12, 2
 
 loop_inc:
@@ -54,15 +62,17 @@ loop_inc:
     movdqu [R8+r11], xmm1
 
     add r11, 4
-    test r11, r12
+    cmp r11, r12
     jle loop_inc
 
-;liCoefficients = newCoefficients
-;tutaj dorobic kopiowanie newCoefficients do liCoefficients lub zwracanie tablicy R8
-
-
-    ;pop rdi
-    ;pop rbx
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rsi
+    pop rdi
+    pop rbp
+    pop rbx
     ret
 LagrangeAsm endp
 end
