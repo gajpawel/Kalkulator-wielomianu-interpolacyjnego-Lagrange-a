@@ -5,12 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lagrange"
         mc:Ignorable="d"
-        Title="Czasy wykonania" Height="394" Width="726" ResizeMode="CanMinimize" Background="#FFF4F4F4">
-    <Grid>
+        Title="Czasy wykonania" Height="462" Width="726" ResizeMode="CanMinimize" Background="#FFF4F4F4">
+    <Grid Margin="0,0,0,-6">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="31*"/>
-            <ColumnDefinition Width="695*"/>
+            <ColumnDefinition Width="538*"/>
+            <ColumnDefinition Width="157*"/>
         </Grid.ColumnDefinitions>
-        <TextBox Name="StatsDescription" HorizontalAlignment="Left" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="628" Height="284" FontSize="14" Grid.Column="1" Margin="18,0,0,0"/>
+        <TextBox Name="StatsDescription" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="628" Height="365" FontSize="14" Grid.Column="1" Margin="18,0,0,0" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

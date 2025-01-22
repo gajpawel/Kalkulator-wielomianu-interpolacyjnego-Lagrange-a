@@ -38,7 +38,7 @@ namespace Lagrange
                 return;
             }
 
-            string statsText = "Czasy wykonania programu w zależności od liczby wątków i sposobu implementacji algorytmu.\n\nJęzyk wysokiego poziomu:\n";
+            string statsText = "Czasy wykonania programu w zależności od liczby wątków i sposobu implementacji algorytmu.\n\nJęzyk wysokiego poziomu (C#):\n";
             stats = true;
             threads = 1;
             asm = false;
@@ -59,7 +59,7 @@ namespace Lagrange
                 threads *= 2;
             }
 
-            statsText += "\nJęzyk niskiego poziomu:\n";
+            statsText += "\nJęzyk niskiego poziomu (ASM):\n";
             threads = 1;
             asm = true;
             while (threads != 128)
@@ -81,7 +81,8 @@ namespace Lagrange
             Stats s = new Stats(statsText);
             s.Activate();
             s.Show();
-            
+
+            time.Text = "Czas wykonania: Wyniki w drugim oknie.";
             result.Text = "Zakończono generowanie.";
             stats = false;
             threads = int.Parse(sliderThreads.Value.ToString());
@@ -301,6 +302,39 @@ namespace Lagrange
                 return;
             FilePath = openFileDialog.FileName;
             FileName.Content = openFileDialog.SafeFileName;
+        }
+
+        private void RandFile(string path, int numEquations, int minEq, int maxEq)
+        {
+            // Nazwa pliku wynikowego
+            string fileName = path+".txt";
+
+            // Generator liczb losowych
+            Random random = new Random();
+
+            // Lista przechowująca linie do zapisania w pliku
+            List<string> lines = new List<string>();
+
+            for (int i = 0; i < numEquations; i++)
+            {
+                // Liczba punktów w równaniu (np. od 2 do 5)
+                int numPoints = random.Next(minEq, maxEq+1);
+
+                List<string> points = new List<string>();
+                for (int j = 0; j < numPoints; j++)
+                {
+                    // Generowanie losowych współrzędnych (x, y)
+                    double x = Math.Round(random.NextDouble() * 100 - 50, 1); // Losowe x od -50 do 50
+                    double y = Math.Round(random.NextDouble() * 100 - 50, 1); // Losowe y od -50 do 50
+                    points.Add($"({x.ToString(CultureInfo.InvariantCulture)}, {y.ToString(CultureInfo.InvariantCulture)})");
+                }
+
+                // Tworzenie jednej linii z punktami
+                lines.Add(string.Join(" ", points) + ",");
+            }
+
+            // Zapis do pliku
+            File.WriteAllLines(fileName, lines);
         }
     }
 }

@@ -50,20 +50,32 @@ decrease:
     movdqu xmm0, [rdx+4*r10] ;xmm0 = x[i]
     movdqu xmm1, [rdx+4*r9]
     subss xmm0, xmm1 ;xmm0 = x[i] - x[j]
+    shufps xmm0, xmm0, 0h
 
     xor r11, r11
     mov r12, rax
     shl r12, 2
+    mov r13, r12
+    sub r13, 16
 
 loop_inc:
 ;newCoefficients[k] /= denominator;
+    movdqu xmm1, [R8+r11]
+    divps xmm1, xmm0
+    movdqu [R8+r11], xmm1
+
+    add r11, 16
+    cmp r11, r13
+    jle loop_inc
+
+loop_inc_scalar:
     movdqu xmm1, [R8+r11]
     divss xmm1, xmm0
     movdqu [R8+r11], xmm1
 
     add r11, 4
     cmp r11, r12
-    jle loop_inc
+    jle loop_inc_scalar
 
     pop r15
     pop r14
