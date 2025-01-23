@@ -10,9 +10,4 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AngouriMath" Version="1.3.0" />
-    <PackageReference Include="MathNet.Symbolics" Version="0.25.0" />
-  </ItemGroup>
-
 </Project>

@@ -21,7 +21,7 @@ namespace Lagrange
         TimeSpan timeS; //czas obliczenia wszystkich równań
         string FilePath = ""; //ścieżka do pliku wejściowego
 
-        [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
+        [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Release\JAAsm.dll")]
         static extern void LagrangeAsm(float[] liCoefficients, float[] x, float[] newCoefficients, int j, int i, int degree);
 
         public MainWindow()
