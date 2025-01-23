@@ -13,13 +13,13 @@ namespace Lagrange
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<Equation> equations = new List<Equation>();
+        List<Equation> equations = new List<Equation>(); //lista przetwarzanych równań
         int threads = Environment.ProcessorCount;
-        bool asm = true;
-        bool stats = false;
-        bool error = false;
-        TimeSpan timeS;
-        string FilePath = "";
+        bool asm = true; //czy liczymy w asemblerze
+        bool stats = false; //czy wywołano okno statystyk
+        bool error = false; //czy wystąpił błąd w odczycie pliku
+        TimeSpan timeS; //czas obliczenia wszystkich równań
+        string FilePath = ""; //ścieżka do pliku wejściowego
 
         [DllImport(@"C:\Users\Paweł\Documents\Projekty Visual Studio\Lagrange\x64\Debug\JAAsm.dll")]
         static extern void LagrangeAsm(float[] liCoefficients, float[] x, float[] newCoefficients, int j, int i, int degree);
@@ -43,6 +43,7 @@ namespace Lagrange
             threads = 1;
             asm = false;
 
+            //Obliczenia w C#
             while(threads!=128)
             {
                 TimeSpan t = TimeSpan.Zero;
@@ -62,6 +63,8 @@ namespace Lagrange
             statsText += "\nJęzyk niskiego poziomu (ASM):\n";
             threads = 1;
             asm = true;
+
+            //Obliczenia w asm
             while (threads != 128)
             {
                 TimeSpan t = TimeSpan.Zero;
@@ -78,6 +81,7 @@ namespace Lagrange
                 threads *= 2;
             }
 
+            //Generowanie okna ze statystykami
             Stats s = new Stats(statsText);
             s.Activate();
             s.Show();
@@ -116,7 +120,6 @@ namespace Lagrange
 
                     Equation equation = new Equation();
 
-                    // Regex do wyodrębnienia par (x, y) z linii
                     var matches = Regex.Matches(line, @"\(([-+]?\d*\.?\d+),\s*([-+]?\d*\.?\d+)\)");
 
                     if (matches.Count == 0)
@@ -199,7 +202,6 @@ namespace Lagrange
                             {
                                 float[] xArray = equations[i].x.ToArray();
                                 float[] newCoefficients = new float[degree + 1];
-                                // Wywołanie funkcji asemblerowej zamiast realizacji w pętli
                                 LagrangeAsm(liCoefficients, xArray, newCoefficients, j, l, degree);
                                 liCoefficients = newCoefficients;
                             }
@@ -220,14 +222,21 @@ namespace Lagrange
                             if (coefR != 1)
                                 equations[i].result += coefR;
                             equations[i].result += "x^" + j + " + ";
+                            if (coefR.ToString() == "NaN")
+                            {
+                                equations[i].result = "B";
+                                break;
+                            }
                         }
                     }
                     equations[i].result += Math.Round(coefficients[1], 2) + "x + ";
                     equations[i].result += Math.Round(coefficients[0], 2);
+                    if (equations[i].result.First() == 'B')
+                        equations[i].result = "Brak wielomianu interpolacyjnego";
                 }
                 else
                 {
-                    CSLagrange r = new CSLagrange(equations[i].x, equations[i].y);
+                    CSLagrange r = new CSLagrange(equations[i].x, equations[i].y); //klasa w bibliotece dll
                     equations[i].result = r.getResult();
                 }
             });
@@ -237,7 +246,7 @@ namespace Lagrange
             timeS = timeSpan;
             time.Text = "Czas wykonania: " + timeSpan.TotalMilliseconds + " ms";
             
-            if(!stats)
+            if(!stats) //nie zapisujemy pliku gdy chcemy wygenerować statystyki
                 SaveFile();
         }
 
@@ -275,6 +284,7 @@ namespace Lagrange
             }
         }
 
+        //Zmiana liczby wątków
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             thr.Text = "Liczba wątków: " + sliderThreads.Value.ToString();
@@ -291,6 +301,7 @@ namespace Lagrange
             this.asm = false;
         }
 
+        //Odczyt punktów z pliku
         private void ButtonRead_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -304,12 +315,10 @@ namespace Lagrange
             FileName.Content = openFileDialog.SafeFileName;
         }
 
+        //Generowanie przykładowych punktów do obliczeń (wywoływane w konstruktorze w razie potrzeby)
         private void RandFile(string path, int numEquations, int minEq, int maxEq)
         {
-            // Nazwa pliku wynikowego
             string fileName = path+".txt";
-
-            // Generator liczb losowych
             Random random = new Random();
 
             // Lista przechowująca linie do zapisania w pliku
@@ -332,8 +341,6 @@ namespace Lagrange
                 // Tworzenie jednej linii z punktami
                 lines.Add(string.Join(" ", points) + ",");
             }
-
-            // Zapis do pliku
             File.WriteAllLines(fileName, lines);
         }
     }

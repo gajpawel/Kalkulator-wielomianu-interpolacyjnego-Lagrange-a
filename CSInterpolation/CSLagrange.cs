@@ -62,6 +62,11 @@ namespace CSInterpolation
                         result += coefR;
                     result+= "x^" + i + " + ";
                 }
+                if(coefR.ToString()=="NaN")
+                {
+                    result = "Brak wielomianu interpolacyjnego";
+                    return;
+                }
             }
             result += Math.Round(coefficients[1], 2) + "x + ";
             result += Math.Round(coefficients[0], 2);

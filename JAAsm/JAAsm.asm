@@ -8,9 +8,11 @@ LagrangeAsm proc
     ; [rsp+40]: i/l (int)
     ; [rsp+48]: degree (int)
 
+    ;Skopiowanie wartoœci ze stosu przed jego zmodyfikowaniem
     mov r10, [rsp+40]
     mov rax, [rsp+48]
 
+    ;Od³o¿enie zmiennych na stos
     push rbx
     push rbp
     push rdi
@@ -20,7 +22,7 @@ LagrangeAsm proc
     push r14
     push r15
 
-    ; Przesuniêcie wspó³czynników i dodanie nowego sk³adnika
+    ;Przesuniêcie wspó³czynników i dodanie nowego sk³adnika
     mov r11, rax
     shl r11, 2
 loop_dec:
@@ -59,7 +61,7 @@ decrease:
     sub r13, 16
 
 loop_inc:
-;newCoefficients[k] /= denominator;
+;newCoefficients[k] /= denominator (wektorowo)
     movdqu xmm1, [R8+r11]
     divps xmm1, xmm0
     movdqu [R8+r11], xmm1
@@ -69,6 +71,7 @@ loop_inc:
     jle loop_inc
 
 loop_inc_scalar:
+;Pozosta³e wartoœci skalarne jeœli degree < 4
     movdqu xmm1, [R8+r11]
     divss xmm1, xmm0
     movdqu [R8+r11], xmm1
@@ -77,6 +80,7 @@ loop_inc_scalar:
     cmp r11, r12
     jle loop_inc_scalar
 
+;Przywrócenie wartoœci zmiennych
     pop r15
     pop r14
     pop r13
